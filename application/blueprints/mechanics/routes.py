@@ -10,6 +10,50 @@ from ...models import Mechanic, service_mechanics
 
 @mechanics_bp.route("/", methods=["POST"])
 def create_mechanic():
+    """
+    Create a new mechanic
+    ---
+    tags:
+      - Mechanics
+    summary: Create mechanic
+    description: Creates a new mechanic in the system.
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          properties:
+            name:
+              type: string
+              example: John Doe
+            email:
+              type: string
+              example: john@email.com
+            salary:
+              type: number
+              example: 60000
+    responses:
+      201:
+        description: Mechanic created successfully
+        schema:
+          properties:
+            id:
+              type: integer
+              example: 1
+            name:
+              type: string
+              example: John Doe
+            email:
+              type: string
+              example: john@email.com
+            salary:
+              type: number
+              example: 60000
+      400:
+        description: Validation error
+      500:
+        description: Server error
+    """
     try:
         new_mechanic = mechanic_schema.load(request.json)
 
@@ -28,6 +72,33 @@ def create_mechanic():
 
 @mechanics_bp.route("/", methods=["GET"])
 def get_mechanics():
+    """
+    Get all mechanics
+    ---
+    tags:
+      - Mechanics
+    summary: Get mechanics
+    description: Returns all mechanics.
+    responses:
+      200:
+        description: List of mechanics
+        schema:
+          type: array
+          items:
+            properties:
+              id:
+                type: integer
+                example: 1
+              name:
+                type: string
+                example: John Doe
+              email:
+                type: string
+                example: john@email.com
+              salary:
+                type: number
+                example: 60000
+    """
     query = select(Mechanic)
     mechanics = db.session.execute(query).scalars().all()
     return mechanics_schema.jsonify(mechanics), 200
@@ -35,6 +106,30 @@ def get_mechanics():
 
 @mechanics_bp.route("/top", methods=["GET"])
 def top_mechanics():
+    """
+    Get top mechanics
+    ---
+    tags:
+      - Mechanics
+    summary: Get top mechanics
+    description: Returns mechanics ranked by number of service tickets.
+    responses:
+      200:
+        description: Ranked mechanics
+        schema:
+          type: array
+          items:
+            properties:
+              id:
+                type: integer
+                example: 1
+              name:
+                type: string
+                example: John Doe
+              ticket_count:
+                type: integer
+                example: 5
+    """
     results = (
         db.session.query(
             Mechanic.id,

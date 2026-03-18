@@ -4,31 +4,56 @@ from marshmallow import ValidationError
 
 from . import customers_bp
 from .schemas import customer_schema, customers_schema
-from ...extensions import db, limiter, cache
+from ...extensions import db
 from ...models import Customer
-from ...utils import encode_token
-
-
-@customers_bp.route("/", methods=["GET"])
-@cache.memoize(timeout=60)
-def get_customers():
-    page = request.args.get("page", default=1, type=int)
-    per_page = request.args.get("per_page", default=5, type=int)
-
-    query = select(Customer)
-    customers = db.paginate(query, page=page, per_page=per_page, error_out=False)
-
-    return jsonify({
-        "items": customers_schema.dump(customers.items),
-        "page": customers.page,
-        "per_page": customers.per_page,
-        "total": customers.total,
-        "pages": customers.pages
-    }), 200
 
 
 @customers_bp.route("/", methods=["POST"])
 def create_customer():
+    """
+    Create a new customer
+    ---
+    tags:
+      - Customers
+    summary: Create customer
+    description: Creates a new customer in the system.
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          properties:
+            name:
+              type: string
+              example: Jane Doe
+            email:
+              type: string
+              example: jane@email.com
+            phone:
+              type: string
+              example: 555-123-4567
+    responses:
+      201:
+        description: Customer created successfully
+        schema:
+          properties:
+            id:
+              type: integer
+              example: 1
+            name:
+              type: string
+              example: Jane Doe
+            email:
+              type: string
+              example: jane@email.com
+            phone:
+              type: string
+              example: 555-123-4567
+      400:
+        description: Validation error
+      500:
+        description: Server error
+    """
     try:
         new_customer = customer_schema.load(request.json)
 
@@ -45,71 +70,35 @@ def create_customer():
         return jsonify({"error": str(e)}), 500
 
 
-@customers_bp.route("/<int:id>", methods=["GET"])
-def get_customer(id):
-    customer = db.session.get(Customer, id)
-
-    if not customer:
-        return jsonify({"error": "Customer not found"}), 404
-
-    return customer_schema.jsonify(customer), 200
-
-
-@customers_bp.route("/<int:id>", methods=["PUT"])
-def update_customer(id):
-    customer = db.session.get(Customer, id)
-
-    if not customer:
-        return jsonify({"error": "Customer not found"}), 404
-
-    try:
-        customer_data = request.json
-
-        customer.name = customer_data["name"]
-        customer.email = customer_data["email"]
-        customer.phone = customer_data["phone"]
-
-        if "password" in customer_data:
-            customer.password = customer_data["password"]
-
-        db.session.commit()
-
-        return customer_schema.jsonify(customer), 200
-
-    except ValidationError as err:
-        return jsonify(err.messages), 400
-
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"error": str(e)}), 500
-
-
-@customers_bp.route("/<int:id>", methods=["DELETE"])
-def delete_customer(id):
-    customer = db.session.get(Customer, id)
-
-    if not customer:
-        return jsonify({"error": "Customer not found"}), 404
-
-    db.session.delete(customer)
-    db.session.commit()
-
-    return jsonify({"message": f"Customer {id} deleted successfully"}), 200
-
-
-@customers_bp.route("/login", methods=["POST"])
-@limiter.limit("5 per minute")
-def login():
-    data = request.json
-
-    email = data.get("email")
-    password = data.get("password")
-
-    customer = Customer.query.filter_by(email=email).first()
-
-    if not customer or customer.password != password:
-        return jsonify({"error": "Invalid credentials"}), 401
-
-    token = encode_token(customer.id)
-
-    return jsonify({"token": token}), 200
+@customers_bp.route("/", methods=["GET"])
+def get_customers():
+    """
+    Get all customers
+    ---
+    tags:
+      - Customers
+    summary: Get customers
+    description: Returns all customers.
+    responses:
+      200:
+        description: List of customers
+        schema:
+          type: array
+          items:
+            properties:
+              id:
+                type: integer
+                example: 1
+              name:
+                type: string
+                example: Jane Doe
+              email:
+                type: string
+                example: jane@email.com
+              phone:
+                type: string
+                example: 555-123-4567
+    """
+    query = select(Customer)
+    customers = db.session.execute(query).scalars().all()
+    return customers_schema.jsonify(customers), 200

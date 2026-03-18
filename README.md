@@ -1,35 +1,10 @@
 # My Mechanic Shop API
 
-## Overview
+API documentation and testing project for a mechanic shop system built with Flask.
 
-This is a Flask REST API for managing a mechanic shop system. It supports customers, mechanics, service tickets, inventory, authentication, rate limiting, caching, and pagination.
+---
 
-## Features
-
-- Customer CRUD
-- Mechanic CRUD
-- Service ticket CRUD
-- Inventory CRUD
-- Add and remove mechanics from tickets
-- Add inventory parts to tickets
-- Customer login with token authentication
-- Protected route for customer tickets
-- Rate limiting on login
-- Caching on customer list route
-- Pagination on customer list route
-- Mechanics ranking by ticket count
-
-## Tech Stack
-
-- Flask
-- SQLAlchemy
-- Marshmallow
-- Flask-Limiter
-- Flask-Caching
-- Python-JOSE
-- SQLite
-
-## Setup Instructions
+## 🚀 Setup Instructions
 
 ### 1. Clone the repository
 
@@ -37,3 +12,65 @@ This is a Flask REST API for managing a mechanic shop system. It supports custom
 git clone <your-github-repo-url>
 cd my-mechanic-shop
 ```
+
+### 2. Create virtual environment
+
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
+
+### 3. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## ▶️ Run the App
+
+```bash
+python app.py
+```
+
+---
+
+## 📄 Swagger Documentation
+
+Open in your browser:
+
+```
+http://127.0.0.1:5000/api/docs
+```
+
+---
+
+## 🧪 Run Tests
+
+```bash
+python -m unittest discover tests
+```
+
+Expected output:
+
+```
+OK
+```
+
+---
+
+## ✅ Features Implemented
+
+- Customers API (GET, POST)
+- Mechanics API (GET, POST, Top Mechanics)
+- Swagger API Documentation
+- Unit Testing with unittest
+
+---
+
+## 📌 Notes
+
+- Built using Flask and SQLAlchemy
+- Uses Application Factory Pattern
+- Designed for learning API development, documentation, and testing
