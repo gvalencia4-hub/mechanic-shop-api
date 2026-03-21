@@ -1,5 +1,4 @@
-import os
 from application import create_app
+from config import ProductionConfig
 
-config_name = os.environ.get("FLASK_CONFIG") or "DevelopmentConfig"
-app = create_app(config_name)
+app = create_app(ProductionConfig)
