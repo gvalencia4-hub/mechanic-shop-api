@@ -3,7 +3,6 @@ from flask_swagger import swagger
 from flask_swagger_ui import get_swaggerui_blueprint
 
 from .extensions import db, ma, limiter, cache
-from config import Config
 
 from .blueprints.customers import customers_bp
 from .blueprints.mechanics import mechanics_bp
@@ -11,16 +10,9 @@ from .blueprints.service_tickets import service_tickets_bp
 from .blueprints.inventory import inventory_bp
 
 
-def create_app(config_name="Config"):
+def create_app(config_class):
     app = Flask(__name__)
-
-    if config_name == "TestingConfig":
-        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///testing.db"
-        app.config["TESTING"] = True
-        app.config["DEBUG"] = True
-        app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    else:
-        app.config.from_object(Config)
+    app.config.from_object(config_class)
 
     db.init_app(app)
     ma.init_app(app)
